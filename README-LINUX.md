@@ -33,6 +33,22 @@ Also committed `Content/bin/DesktopGL/Content/OverlayFont.xnb`, which
 upstream tracked the other prebuilt `.xnb` but missed (it's `bin/`-ignored;
 force-added). Without it the spritefont is absent at runtime.
 
+### File Open/Save dialogs (native file picker)
+
+The `NativeFileDialogExtendedSharp` package (0.1.0) ships **only** the Windows
+`nfd.dll` — no Linux native library. So the moment you click **Open** (or any
+Save), `Nfd.FileOpen`/`Nfd.FileSave` P/Invokes a missing `nfd` library and the
+app crashes.
+
+Fix: a Linux build of
+[nativefiledialog-extended](https://github.com/btzy/nativefiledialog-extended)
+(portal backend — uses `xdg-desktop-portal`, so you get the desktop's native
+file chooser) is vendored at `native/linux-x64/libnfd.so` and copied next to
+the app output by `GaneshaDx.csproj` on Unix builds. See
+`native/linux-x64/README.md` for the build command. This needs an
+`xdg-desktop-portal` implementation running (standard on most desktops,
+including Hyprland/Omarchy).
+
 ## Prerequisites (Arch)
 
 ```bash
@@ -66,7 +82,8 @@ Output: `bin/Release/net6.0/GaneshaDx` (native apphost) and `GaneshaDx.dll`.
 
 RollForward is baked into `GaneshaDx.runtimeconfig.json`, so it runs on the
 installed net10 runtime with no env var. A MonoGame DesktopGL window opens
-(OpenGL via SDL2). Verified on .NET SDK 10 + system SDL2/OpenAL.
+(OpenGL via SDL2). Verified on .NET SDK 10 + system SDL2/OpenAL, including the
+file Open/Save dialogs (see the native file picker note above).
 
 ## Rebuilding the shader (only if you edit FFTPolygonShader.fx)
 

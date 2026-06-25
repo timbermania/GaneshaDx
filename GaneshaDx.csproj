@@ -35,6 +35,12 @@
             <Link>Content\%(RecursiveDir)%(Filename)%(Extension)</Link>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
+        <!-- NativeFileDialogExtendedSharp ships no Linux native lib, so the file
+             Open/Save dialogs crash. Ship our own (see native/linux-x64/README.md). -->
+        <Content Include="native\linux-x64\libnfd.so">
+            <Link>libnfd.so</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
     <ItemGroup>
         <TrimmerRootAssembly Include="Microsoft.Xna.Framework.Content.ContentTypeReader" Visible="false" />
