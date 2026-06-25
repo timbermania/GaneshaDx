@@ -5,6 +5,11 @@
         <PublishReadyToRun>false</PublishReadyToRun>
         <TieredCompilation>false</TieredCompilation>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <!-- net6.0 is EOL; allow running on a newer installed runtime (e.g. net8/net10). -->
+        <RollForward>Major</RollForward>
+        <!-- Linux/macOS: don't auto-glob/build .mgcb content (the shader needs Wine).
+             We consume the committed prebuilt .xnb instead (see README-LINUX.md). -->
+        <EnableMGCBItems Condition="'$(OS)' == 'Unix'">false</EnableMGCBItems>
     </PropertyGroup>
     <PropertyGroup>
         <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -18,8 +23,18 @@
         <EmbeddedResource Include="Icon.ico" />
         <EmbeddedResource Include="Icon.bmp" />
     </ItemGroup>
-    <ItemGroup>
+    <!-- Windows: build content through the MonoGame pipeline. The HLSL effect
+         compiler (FFTPolygonShader.fx) needs d3dcompiler_47. -->
+    <ItemGroup Condition="'$(OS)' != 'Unix'">
         <MonoGameContentReference Include="Content\Content.mgcb" />
+    </ItemGroup>
+    <!-- Linux/macOS: MonoGame's effect compiler requires Wine to build the shader,
+         so instead consume the committed prebuilt .xnb content. See README-LINUX.md. -->
+    <ItemGroup Condition="'$(OS)' == 'Unix'">
+        <Content Include="Content\bin\DesktopGL\Content\**\*.*">
+            <Link>Content\%(RecursiveDir)%(Filename)%(Extension)</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
     <ItemGroup>
         <TrimmerRootAssembly Include="Microsoft.Xna.Framework.Content.ContentTypeReader" Visible="false" />
